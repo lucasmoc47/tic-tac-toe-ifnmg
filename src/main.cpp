@@ -79,51 +79,51 @@ bool InitWindow(){
 		return 0;
 	}
 
-	if ((imgGrid = IMG_Load("../img/grid.png")) == NULL){
+	if ((imgGrid = IMG_Load("img/grid.png")) == NULL){
 		printf("Unable to load \"grid.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if ((imgX = IMG_Load("../img/x.png")) == NULL){
+	if ((imgX = IMG_Load("img/x.png")) == NULL){
 		printf("Unable to load \"x.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if ((imgO = IMG_Load("../img/o.png")) == NULL){
+	if ((imgO = IMG_Load("img/o.png")) == NULL){
 		printf("Unable to laod \"o.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if ((imgNewGame = IMG_Load("../img/new_game.png")) == NULL){
+	if ((imgNewGame = IMG_Load("img/new_game.png")) == NULL){
 		printf("Unable to load \"new_game.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if((sfxClickX = Mix_LoadWAV("../sfx/x_sound.wav")) == NULL){
+	if((sfxClickX = Mix_LoadWAV("sfx/x_sound.wav")) == NULL){
 		printf("Unable to load \"x_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
-	if((sfxClickO = Mix_LoadWAV("../sfx/o_sound.wav")) == NULL){
+	if((sfxClickO = Mix_LoadWAV("sfx/o_sound.wav")) == NULL){
 		printf("Unable to load \"o_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
-	if((sfxGameEnded = Mix_LoadWAV("../sfx/game_ended.wav")) == NULL){
+	if((sfxGameEnded = Mix_LoadWAV("sfx/game_ended.wav")) == NULL){
 		printf("Unable to load \"game_ended.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
-	if((sfxInvalidClick = Mix_LoadWAV("../sfx/invalid_click_sound.wav")) == NULL){
+	if((sfxInvalidClick = Mix_LoadWAV("sfx/invalid_click_sound.wav")) == NULL){
 		printf("Unable to load \"invalid_click_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
 	return 1;
-
+	
 }
 
-bool newGameScreen(){
+bool NewGameScreen(){
 	//TODO
 	//O "new game" deve funcionar como um botão, e não fazer parte do background
 
@@ -295,7 +295,7 @@ void NewRound(){
 		}
 	}
 
-	imgGrid = IMG_Load("../img/grid.png");
+	imgGrid = IMG_Load("img/grid.png");
 
 	if(imgGrid == NULL){
 		printf("Unable to load \"grid.png\"! SDL Error: %s\n", SDL_GetError());
@@ -507,7 +507,7 @@ int main(int argc, char *argv[]){
 		return 0;
 	}
 
-	while(!(quit = newGameScreen())){
+	while(!(quit = NewGameScreen())){
 		SetGridRect();
 		NewRound();
 		GameLoop();
