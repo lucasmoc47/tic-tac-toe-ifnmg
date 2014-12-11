@@ -331,7 +331,7 @@ int ScanMatriz(){
 	return 0;
 }
 
-void gameLoop(){
+void GameLoop(){
 	bool quit = false;
 
 	while (!quit){
@@ -388,7 +388,7 @@ int main(int argc, char *argv[]){
 	while(!(quit = newGameScreen())){
 		SetGridRect();
 		NewRound();
-		gameLoop();
+		GameLoop();
 	}
 
 	return 0;
