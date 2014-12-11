@@ -21,26 +21,40 @@ int player;
 int winner;
 int ocupados;
 
+//Imagens
 SDL_Surface *grid = NULL;
 SDL_Surface *xImage = NULL;
 SDL_Surface *oImage = NULL;
 SDL_Surface *screen = NULL;
 SDL_Surface *newGame = NULL;
 
+//SFX
+Mix_Chunk *sfxClickX = NULL;
+Mix_Chunk *sfxClickO = NULL;
+Mix_Chunk *sfxGameEnded = NULL;
+
+//Janela
 SDL_Window *window = NULL;
 
+//Posições do grid
 SDL_Rect gridRect[9];
 
+//Eventos
 SDL_Event event;
 
 
 bool InitWindow(){
 
-	if (SDL_INIT_VIDEO < 0){
-		printf("Erro ao inicializar o vídeo!\n");
+	if (SDL_Init(SDL_INIT_VIDEO < 0 | SDL_INIT_AUDIO) < 0){
+		printf("Erro ao inicializar SDL! Erro SDL: %s\n", SDL_GetError());
 		return 0;
 	}
 	else{
+
+		if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0){
+			printf("SDL_mixer não pode ser inicializado! Erro SDL: %s\n", Mix_GetError());
+			return 0;
+		}
 
 		window = SDL_CreateWindow("TIC-TAC-TOE", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
@@ -77,10 +91,24 @@ bool InitWindow(){
 	}
 
 	if ((newGame = IMG_Load("../img/new_game.png")) == NULL){
-			printf("Erro %s\n", SDL_GetError());
-			return 0;
-		}
+		printf("Erro %s\n", SDL_GetError());
+		return 0;
+	}
 
+	if((sfxClickX = Mix_LoadWAV("../sfx/x_sound.wav")) == NULL){
+		printf("Não foi possível carregar \"x_sound.wav\"! Erro SDL: %s\n", Mix_GetError());
+		return 0;
+	}
+
+	if((sfxClickO = Mix_LoadWAV("../sfx/o_sound.wav")) == NULL){
+		printf("Não foi possível carregar \"o_sound.wav\"! Erro SDL: %s\n", Mix_GetError());
+		return 0;
+	}
+
+	if((sfxGameEnded = Mix_LoadWAV("../sfx/game_ended.wav")) == NULL){
+		printf("Não foi possível carregar \"game_ended.wav\"! Erro SDL: %s\n", Mix_GetError());
+		return 0;
+	}
 	return 1;
 
 }
@@ -209,7 +237,7 @@ void GetPosition(int x, int y){
 
 }
 
-bool GetEvents(){
+bool GetEvents(int player){
 
 	while(SDL_PollEvent(&event) != 0){
 
@@ -223,6 +251,12 @@ bool GetEvents(){
 			SDL_GetMouseState(&x, &y);
 
 			GetPosition(x, y);
+
+			if(player == 1){
+				Mix_PlayChannel(-1, sfxClickO, 0);
+			}else{
+				Mix_PlayChannel(-1, sfxClickX, 0);
+			}
 
 		}
 		if(event.type == SDL_KEYDOWN){
@@ -337,7 +371,7 @@ void GameLoop(){
 	while (!quit){
 		pressedPosition = 0;
 
-		quit = GetEvents();
+		quit = GetEvents(player);
 		if (CheckPosition()){
 			SDL_BlitSurface(player == 1 ? xImage : oImage, NULL, grid, &gridRect[pressedPosition - 1]);
 			ocupados++;
@@ -348,11 +382,12 @@ void GameLoop(){
 						printf("Empate!\n");
 					}else{
 						printf("Player %d ganhou\n", winner);
+						Mix_PlayChannel(-1, sfxGameEnded, 0);
 					}
 					SDL_BlitSurface(grid, NULL, screen, NULL);
 					SDL_BlitSurface(player == 1 ? xImage : oImage, NULL, grid, &gridRect[pressedPosition - 1]);
 					SDL_UpdateWindowSurface(window);
-					SDL_Delay(1000);
+					SDL_Delay(2000);
 					return;
 				}
 			}
@@ -368,11 +403,13 @@ void Close(){
 	SDL_DestroyWindow(window);
 
 	SDL_FreeSurface(grid);
-
 	SDL_FreeSurface(xImage);
 	SDL_FreeSurface(oImage);
-
 	SDL_FreeSurface(newGame);
+
+	Mix_FreeChunk(sfxClickX);
+	Mix_FreeChunk(sfxClickO);
+	Mix_FreeChunk(sfxGameEnded);
 
 }
 
