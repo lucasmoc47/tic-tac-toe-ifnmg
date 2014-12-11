@@ -86,6 +86,27 @@ bool InitWindow(){
 }
 
 bool newGameScreen(){
+	//TODO
+	//O "new game" deve funcionar como um botão, e não fazer parte do background
+
+	while(1){
+		SDL_BlitSurface(newGame, NULL, screen, NULL);
+		SDL_UpdateWindowSurface(window);
+
+		SDL_PollEvent(&event) != 0;
+
+		if(event.type == SDL_MOUSEBUTTONDOWN){
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+
+			if(((x >= 80) && (x <= 220)) && ((y >= 210) && (y <= 225))){
+				return 0;
+			}else if(((x >= 115) && (x <= 170)) && ((y >= 250) && (y <= 265))){
+				return 1;
+			}
+		}
+
+	}
 
 }
 
@@ -325,7 +346,7 @@ void Close(){
 
 int main(int argc, char *argv[]){
 
-	bool quit = false;
+	bool quit;
 
 	if (!InitWindow()){
 		printf("Erro total!\n");
@@ -335,6 +356,8 @@ int main(int argc, char *argv[]){
 	//Chama a tela inicial
 	//Espera o jogador clicar em new game ou quit
 	//Se new game continua caso contrario quit == true
+
+	quit = newGameScreen();
 
 	SetGridRect();
 
