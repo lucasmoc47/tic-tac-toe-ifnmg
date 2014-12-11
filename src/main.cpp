@@ -1,4 +1,4 @@
-#ifdef _linux_
+#ifdef linux
 	#include <SDL2/SDL.h>
 	#include <SDL2/SDL_ttf.h>
 	#include <SDL2/SDL_image.h>
@@ -26,7 +26,7 @@ const int COMP = 4;
 #define NULLCHAR '\0'
 
 int pressedPosition;
-int posX, posY; //PosiÁıes da matriz que representa o grid
+int posX, posY; //Posi√ß√µes da matriz que representa o grid
 char grid[GRID_SIZE][GRID_SIZE];
 char player;
 char winner;
@@ -48,7 +48,7 @@ Mix_Chunk *sfxGameEnded = NULL;
 //Janela
 SDL_Window *window = NULL;
 
-//PosiÁıes do grid
+//Posi√ß√µes do grid
 SDL_Rect gridRect[9];
 
 //Eventos
@@ -133,7 +133,7 @@ bool InitWindow(){
 
 void NewGameScreen(){
 	//TODO
-	//O "new game" deve funcionar como um bot„o, e n„o fazer parte do background
+	//O "new game" deve funcionar como um bot√£o, e n√£o fazer parte do background
 
 	SDL_BlitSurface(imgNewGame, NULL, screen, NULL);
 
@@ -234,7 +234,7 @@ int GetPosition(int x, int y){
 		posY = 2;
 	}
 	else{
-		printf("PosiÁ„o invalida.\n");
+		printf("Posi√ß√£o invalida.\n");
 		return 0;
 	}
 
@@ -381,7 +381,7 @@ void CheckIfWon(char player){
 		return;
 	}
 
-	//Verifica diagonal secund·ria
+	//Verifica diagonal secund√°ria
 	won = true;
 	for (int i = GRID_SIZE - 1, j = 0; i >= 0; i--, j++){
 		if (grid[j][i] != player){
@@ -390,7 +390,7 @@ void CheckIfWon(char player){
 	}
 
 	if (won){
-		printf("Diagonal secund·ria!\n");
+		printf("Diagonal secund√°ria!\n");
 		winner = player;
 		return;
 	}
