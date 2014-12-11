@@ -22,15 +22,16 @@ int winner;
 int ocupados;
 
 //Imagens
-SDL_Surface *grid = NULL;
-SDL_Surface *xImage = NULL;
-SDL_Surface *oImage = NULL;
+SDL_Surface *imgGrid = NULL;
+SDL_Surface *imgX = NULL;
+SDL_Surface *imgO = NULL;
+SDL_Surface *imgNewGame = NULL;
 SDL_Surface *screen = NULL;
-SDL_Surface *newGame = NULL;
 
 //SFX
 Mix_Chunk *sfxClickX = NULL;
 Mix_Chunk *sfxClickO = NULL;
+Mix_Chunk *sfxInvalidClick = NULL;
 Mix_Chunk *sfxGameEnded = NULL;
 
 //Janela
@@ -46,20 +47,20 @@ SDL_Event event;
 bool InitWindow(){
 
 	if (SDL_Init(SDL_INIT_VIDEO < 0 | SDL_INIT_AUDIO) < 0){
-		printf("Erro ao inicializar SDL! Erro SDL: %s\n", SDL_GetError());
+		printf("Unable to load SDL! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 	else{
 
 		if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0){
-			printf("SDL_mixer não pode ser inicializado! Erro SDL: %s\n", Mix_GetError());
+			printf("Unable to load SDL_Mixer! Mix Error: %s\n", Mix_GetError());
 			return 0;
 		}
 
 		window = SDL_CreateWindow("TIC-TAC-TOE", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
 		if (window == NULL){
-			printf("Erro ao inicializar a janela\n");
+			printf("Unable to init window! SDL Error: %s\n", SDL_GetError());
 			return 0;
 		}
 		else{
@@ -71,44 +72,50 @@ bool InitWindow(){
 	int imgFlags = IMG_INIT_PNG;
 
 	if(!(IMG_Init(imgFlags) & imgFlags)){
-		printf("Erro. Não foi possível inicializar SDL_image!\n%s\n", IMG_GetError());
+		printf("Unable to load SDL_image! SDL Error:%s\n", IMG_GetError());
 		return 0;
 	}
 
-	if ((grid = IMG_Load("../img/grid.png")) == NULL){
-		printf("Erro ao carregar o background\n");
+	if ((imgGrid = IMG_Load("../img/grid.png")) == NULL){
+		printf("Unable to load \"grid.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if ((xImage = IMG_Load("../img/x.png")) == NULL){
-		printf("Erro %s\n", SDL_GetError());
+	if ((imgX = IMG_Load("../img/x.png")) == NULL){
+		printf("Unable to load \"x.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if ((oImage = IMG_Load("../img/o.png")) == NULL){
-		printf("Erro %s\n", SDL_GetError());
+	if ((imgO = IMG_Load("../img/o.png")) == NULL){
+		printf("Unable to laod \"o.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if ((newGame = IMG_Load("../img/new_game.png")) == NULL){
-		printf("Erro %s\n", SDL_GetError());
+	if ((imgNewGame = IMG_Load("../img/new_game.png")) == NULL){
+		printf("Unable to load \"new_game.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
 	if((sfxClickX = Mix_LoadWAV("../sfx/x_sound.wav")) == NULL){
-		printf("Não foi possível carregar \"x_sound.wav\"! Erro SDL: %s\n", Mix_GetError());
+		printf("Unable to load \"x_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
 	if((sfxClickO = Mix_LoadWAV("../sfx/o_sound.wav")) == NULL){
-		printf("Não foi possível carregar \"o_sound.wav\"! Erro SDL: %s\n", Mix_GetError());
+		printf("Unable to load \"o_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
 	if((sfxGameEnded = Mix_LoadWAV("../sfx/game_ended.wav")) == NULL){
-		printf("Não foi possível carregar \"game_ended.wav\"! Erro SDL: %s\n", Mix_GetError());
+		printf("Unable to load \"game_ended.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
+
+	if((sfxInvalidClick = Mix_LoadWAV("../sfx/invalid_click_sound.wav")) == NULL){
+		printf("Unable to load \"invalid_click_sound.wav\"! Mix Error: %s\n", Mix_GetError());
+		return 0;
+	}
+
 	return 1;
 
 }
@@ -118,7 +125,7 @@ bool newGameScreen(){
 	//O "new game" deve funcionar como um botão, e não fazer parte do background
 
 	while(1){
-		SDL_BlitSurface(newGame, NULL, screen, NULL);
+		SDL_BlitSurface(imgNewGame, NULL, screen, NULL);
 		SDL_UpdateWindowSurface(window);
 
 		SDL_PollEvent(&event);
@@ -127,9 +134,9 @@ bool newGameScreen(){
 			int x, y;
 			SDL_GetMouseState(&x, &y);
 
-			if(((x >= 80) && (x <= 220)) && ((y >= 210) && (y <= 225))){
+			if(((x >= 75) && (x <= 220)) && ((y >= 140) && (y <= 160))){
 				return 0;
-			}else if(((x >= 115) && (x <= 170)) && ((y >= 250) && (y <= 265))){
+			}else if(((x >= 115) && (x <= 180)) && ((y >= 170) && (y <= 190))){
 				return 1;
 			}
 		}
@@ -185,7 +192,7 @@ void SetGridRect(){
 	gridRect[8].h = BUTTON_HEIGHT;
 }
 
-void GetPosition(int x, int y){
+int GetPosition(int x, int y){
 
 	if (x < gridRect[0].w && y < gridRect[0].h){
 		pressedPosition = 1;
@@ -231,9 +238,12 @@ void GetPosition(int x, int y){
 		pressedPosition = 9;
 		posX = 2;
 		posY = 2;
+	}else{
+		printf("Posição invalida.\n");
+		return 0;
 	}
 
-	else printf("NADA\n");
+	return 1;
 
 }
 
@@ -250,12 +260,15 @@ bool GetEvents(int player){
 
 			SDL_GetMouseState(&x, &y);
 
-			GetPosition(x, y);
+			if(GetPosition(x, y)){
 
-			if(player == 1){
-				Mix_PlayChannel(-1, sfxClickO, 0);
+				if(player == 1){
+					Mix_PlayChannel(-1, sfxClickO, 0);
+				}else if(player == 2){
+					Mix_PlayChannel(-1, sfxClickX, 0);
+				}
 			}else{
-				Mix_PlayChannel(-1, sfxClickX, 0);
+				Mix_PlayChannel(-1, sfxInvalidClick, 0);
 			}
 
 		}
@@ -279,10 +292,10 @@ void NewRound(){
 		}
 	}
 
-	grid = IMG_Load("../img/grid.png");
+	imgGrid = IMG_Load("../img/grid.png");
 
-	if(grid == NULL){
-		printf("Erro ao carregar o grid. (New round)");
+	if(imgGrid == NULL){
+		printf("Unable to load \"grid.png\"! SDL Error: %s\n", SDL_GetError());
 	}
 
 	winner = 0;
@@ -373,19 +386,20 @@ void GameLoop(){
 
 		quit = GetEvents(player);
 		if (CheckPosition()){
-			SDL_BlitSurface(player == 1 ? xImage : oImage, NULL, grid, &gridRect[pressedPosition - 1]);
+			SDL_BlitSurface(player == 1 ? imgX : imgO, NULL, imgGrid, &gridRect[pressedPosition - 1]);
 			ocupados++;
 			if (ocupados > 4){
 				winner = ScanMatriz();
 				if (winner == 1 || winner == 2 || ocupados == 9){
-					if (ocupados == 9){
-						printf("Empate!\n");
-					}else{
+					if((winner == 1) || (winner == 2)){
 						printf("Player %d ganhou\n", winner);
+						SDL_Delay(50);
 						Mix_PlayChannel(-1, sfxGameEnded, 0);
+					}else{
+						printf("Empate!\n");
 					}
-					SDL_BlitSurface(grid, NULL, screen, NULL);
-					SDL_BlitSurface(player == 1 ? xImage : oImage, NULL, grid, &gridRect[pressedPosition - 1]);
+					SDL_BlitSurface(imgGrid, NULL, screen, NULL);
+					SDL_BlitSurface(player == 1 ? imgX : imgO, NULL, imgGrid, &gridRect[pressedPosition - 1]);
 					SDL_UpdateWindowSurface(window);
 					SDL_Delay(2000);
 					return;
@@ -393,7 +407,7 @@ void GameLoop(){
 			}
 		}
 
-		SDL_BlitSurface(grid, NULL, screen, NULL);
+		SDL_BlitSurface(imgGrid, NULL, screen, NULL);
 		SDL_UpdateWindowSurface(window);
 	}
 }
@@ -402,10 +416,10 @@ void Close(){
 
 	SDL_DestroyWindow(window);
 
-	SDL_FreeSurface(grid);
-	SDL_FreeSurface(xImage);
-	SDL_FreeSurface(oImage);
-	SDL_FreeSurface(newGame);
+	SDL_FreeSurface(imgGrid);
+	SDL_FreeSurface(imgX);
+	SDL_FreeSurface(imgO);
+	SDL_FreeSurface(imgNewGame);
 
 	Mix_FreeChunk(sfxClickX);
 	Mix_FreeChunk(sfxClickO);
