@@ -1,7 +1,7 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL.h>
+//#include <SDL_ttf.h>
+#include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <cstdio>
 
 const int SCREEN_WIDTH = 311;
@@ -18,7 +18,7 @@ const int COMP = 4;
 #define NULLCHAR '\0'
 
 int pressedPosition;
-int posX, posY; //PosiÃ§Ãµes da matriz que representa o grid
+int posX, posY; //Posições da matriz que representa o grid
 char grid[GRID_SIZE][GRID_SIZE];
 char player;
 char winner;
@@ -40,7 +40,7 @@ Mix_Chunk *sfxGameEnded = NULL;
 //Janela
 SDL_Window *window = NULL;
 
-//PosiÃ§Ãµes do grid
+//Posições do grid
 SDL_Rect gridRect[9];
 
 //Eventos
@@ -55,7 +55,7 @@ bool InitWindow(){
 	}
 	else{
 
-		if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0){
+		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0){
 			printf("Unable to load SDL_Mixer! Mix Error: %s\n", Mix_GetError());
 			return 0;
 		}
@@ -74,47 +74,47 @@ bool InitWindow(){
 
 	int imgFlags = IMG_INIT_PNG;
 
-	if(!(IMG_Init(imgFlags) & imgFlags)){
+	if (!(IMG_Init(imgFlags) & imgFlags)){
 		printf("Unable to load SDL_image! SDL Error:%s\n", IMG_GetError());
 		return 0;
 	}
 
-	if ((imgGrid = IMG_Load("../img/grid.png")) == NULL){
+	if ((imgGrid = IMG_Load("img/grid.png")) == NULL){
 		printf("Unable to load \"grid.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if ((imgX = IMG_Load("../img/x.png")) == NULL){
+	if ((imgX = IMG_Load("img/x.png")) == NULL){
 		printf("Unable to load \"x.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if ((imgO = IMG_Load("../img/o.png")) == NULL){
+	if ((imgO = IMG_Load("img/o.png")) == NULL){
 		printf("Unable to laod \"o.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if ((imgNewGame = IMG_Load("../img/new_game.png")) == NULL){
+	if ((imgNewGame = IMG_Load("img/new_game.png")) == NULL){
 		printf("Unable to load \"new_game.png\"! SDL Error: %s\n", SDL_GetError());
 		return 0;
 	}
 
-	if((sfxClickX = Mix_LoadWAV("../sfx/x_sound.wav")) == NULL){
+	if ((sfxClickX = Mix_LoadWAV("sfx/x_sound.wav")) == NULL){
 		printf("Unable to load \"x_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
-	if((sfxClickO = Mix_LoadWAV("../sfx/o_sound.wav")) == NULL){
+	if ((sfxClickO = Mix_LoadWAV("sfx/o_sound.wav")) == NULL){
 		printf("Unable to load \"o_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
-	if((sfxGameEnded = Mix_LoadWAV("../sfx/game_ended.wav")) == NULL){
+	if ((sfxGameEnded = Mix_LoadWAV("sfx/game_ended.wav")) == NULL){
 		printf("Unable to load \"game_ended.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
-	if((sfxInvalidClick = Mix_LoadWAV("../sfx/invalid_click_sound.wav")) == NULL){
+	if ((sfxInvalidClick = Mix_LoadWAV("sfx/invalid_click_sound.wav")) == NULL){
 		printf("Unable to load \"invalid_click_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
@@ -123,23 +123,24 @@ bool InitWindow(){
 
 }
 
-bool newGameScreen(){
+bool NewGameScreen(){
 	//TODO
-	//O "new game" deve funcionar como um botÃ£o, e nÃ£o fazer parte do background
+	//O "new game" deve funcionar como um botão, e não fazer parte do background
 
-	while(1){
+	while (1){
 		SDL_BlitSurface(imgNewGame, NULL, screen, NULL);
 		SDL_UpdateWindowSurface(window);
 
 		SDL_PollEvent(&event);
 
-		if(event.type == SDL_MOUSEBUTTONDOWN){
+		if (event.type == SDL_MOUSEBUTTONDOWN){
 			int x, y;
 			SDL_GetMouseState(&x, &y);
 
-			if(((x >= 75) && (x <= 220)) && ((y >= 140) && (y <= 160))){
+			if (((x >= 75) && (x <= 220)) && ((y >= 140) && (y <= 160))){
 				return 0;
-			}else if(((x >= 115) && (x <= 180)) && ((y >= 170) && (y <= 190))){
+			}
+			else if (((x >= 115) && (x <= 180)) && ((y >= 170) && (y <= 190))){
 				return 1;
 			}
 		}
@@ -154,7 +155,7 @@ void SetGridRect(){
 	gridRect[0].w = BUTTON_WIDTH;
 	gridRect[0].h = BUTTON_HEIGHT;
 
-	gridRect[1].x = BUTTON_WIDTH + COMP*3 + BAR_SIZE;
+	gridRect[1].x = BUTTON_WIDTH + COMP * 3 + BAR_SIZE;
 	gridRect[1].y = COMP;
 	gridRect[1].w = BUTTON_WIDTH;
 	gridRect[1].h = BUTTON_HEIGHT;
@@ -165,7 +166,7 @@ void SetGridRect(){
 	gridRect[2].h = BUTTON_HEIGHT;
 
 	gridRect[3].x = COMP;
-	gridRect[3].y = BUTTON_WIDTH + BAR_SIZE + COMP*3;
+	gridRect[3].y = BUTTON_WIDTH + BAR_SIZE + COMP * 3;
 	gridRect[3].w = BUTTON_WIDTH;
 	gridRect[3].h = BUTTON_HEIGHT;
 
@@ -241,8 +242,9 @@ int GetPosition(int x, int y){
 		pressedPosition = 9;
 		posX = 2;
 		posY = 2;
-	}else{
-		printf("PosiÃ§Ã£o invalida.\n");
+	}
+	else{
+		printf("Posição invalida.\n");
 		return 0;
 	}
 
@@ -252,32 +254,34 @@ int GetPosition(int x, int y){
 
 bool GetEvents(int player){
 
-	while(SDL_PollEvent(&event) != 0){
+	while (SDL_PollEvent(&event) != 0){
 
-		if(event.type == SDL_QUIT){
+		if (event.type == SDL_QUIT){
 			return 1;
 		}
-		if(event.type == SDL_MOUSEBUTTONDOWN){
+		if (event.type == SDL_MOUSEBUTTONDOWN){
 
 			int x, y;
 
 			SDL_GetMouseState(&x, &y);
 
-			if(GetPosition(x, y)){
+			if (GetPosition(x, y)){
 
-				if(player == CIRCLE){
+				if (player == CIRCLE){
 					Mix_PlayChannel(-1, sfxClickO, 0);
-				}else if(player == CROSS){
+				}
+				else if (player == CROSS){
 					Mix_PlayChannel(-1, sfxClickX, 0);
 				}
-			}else{
+			}
+			else{
 				Mix_PlayChannel(-1, sfxInvalidClick, 0);
 			}
 
 		}
-		if(event.type == SDL_KEYDOWN){
+		if (event.type == SDL_KEYDOWN){
 
-			if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){
+			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){
 				return 1;
 			}
 
@@ -295,9 +299,9 @@ void NewRound(){
 		}
 	}
 
-	imgGrid = IMG_Load("../img/grid.png");
+	imgGrid = IMG_Load("img/grid.png");
 
-	if(imgGrid == NULL){
+	if (imgGrid == NULL){
 		printf("Unable to load \"grid.png\"! SDL Error: %s\n", SDL_GetError());
 	}
 
@@ -321,7 +325,7 @@ bool CheckPosition(){
 }
 
 void CheckIfWon(char player){
-/*
+	/*
 	int horizontal = 0, vertical = 0;
 	int diagonal_1 = 0, diagonal_2 = 0;
 
@@ -329,71 +333,71 @@ void CheckIfWon(char player){
 
 	//Verifica as linhas e diagonais
 	for (int i = 0; i < GRID_SIZE; i++){
-		for (int j = 0; j < GRID_SIZE; j++){
-			if (horizontal != 0 && horizontal != grid[i][j]){
-				changedH = true;
-			}
-			horizontal = grid[i][j];
-			if (i == j){
-				if (diagonal_1 != 0 && diagonal_1 != grid[i][j]){
-					changedD1 = true;
-				}
-				diagonal_1 = grid[i][j];
-			}
-			if ((i + j) == 2){
-				if (diagonal_2 != 0 && diagonal_2 != grid[i][j]){
-					changedD2 = true;
-				}
-				diagonal_2 = grid[i][j];
-			}
-		}
+	for (int j = 0; j < GRID_SIZE; j++){
+	if (horizontal != 0 && horizontal != grid[i][j]){
+	changedH = true;
+	}
+	horizontal = grid[i][j];
+	if (i == j){
+	if (diagonal_1 != 0 && diagonal_1 != grid[i][j]){
+	changedD1 = true;
+	}
+	diagonal_1 = grid[i][j];
+	}
+	if ((i + j) == 2){
+	if (diagonal_2 != 0 && diagonal_2 != grid[i][j]){
+	changedD2 = true;
+	}
+	diagonal_2 = grid[i][j];
+	}
+	}
 
-		if (!changedH){
-			return horizontal;
-		}
-		changedH = false;
-		horizontal = 0;
+	if (!changedH){
+	return horizontal;
+	}
+	changedH = false;
+	horizontal = 0;
 	}
 
 	if (!changedD1){
-		return diagonal_1;
+	return diagonal_1;
 	}
 	if (!changedD2){
-		return diagonal_2;
+	return diagonal_2;
 	}
 
 	//Verifica as colunas
 	for (int i = 0; i < GRID_SIZE; i++){
-		for (int j = 0; j < GRID_SIZE; j++){
-			if (vertical != 0 && vertical != grid[j][i]){
-				changedV = true;
-			}
-			vertical = grid[j][i];
-		}
+	for (int j = 0; j < GRID_SIZE; j++){
+	if (vertical != 0 && vertical != grid[j][i]){
+	changedV = true;
+	}
+	vertical = grid[j][i];
+	}
 
-		if (!changedV){
-			return vertical;
-		}
-		changedV = false;
-		vertical = 0;
+	if (!changedV){
+	return vertical;
+	}
+	changedV = false;
+	vertical = 0;
 	}
 
 	return 0;
-*/
+	*/
 
 	bool won;
 	player == CROSS ? player = CIRCLE : player = CROSS;
 
 	//Verifica linhas
-	for(int i = 0; i < GRID_SIZE; i++){
+	for (int i = 0; i < GRID_SIZE; i++){
 		won = true;
-		for(int j = 0; j < GRID_SIZE; j++){
-			if(grid[i][j] != player){
+		for (int j = 0; j < GRID_SIZE; j++){
+			if (grid[i][j] != player){
 				won = false;
 			}
 		}
 
-		if(won){
+		if (won){
 			printf("Linhas!\n");
 			winner = player;
 			return;
@@ -401,16 +405,16 @@ void CheckIfWon(char player){
 	}
 
 	//Verifica colunas
-	for(int i = 0; i < GRID_SIZE; i++){
+	for (int i = 0; i < GRID_SIZE; i++){
 		won = true;
 
-		for(int j = 0; j < GRID_SIZE; j++){
-			if(grid[j][i] != player){
+		for (int j = 0; j < GRID_SIZE; j++){
+			if (grid[j][i] != player){
 				won = false;
 			}
 		}
 
-		if(won){
+		if (won){
 			printf("Colunas!\n");
 			winner = player;
 			return;
@@ -419,28 +423,28 @@ void CheckIfWon(char player){
 
 	//Verifica diagonal principal
 	won = true;
-	for(int i = 0; i < GRID_SIZE; i++){
-		if(grid[i][i] != player){
+	for (int i = 0; i < GRID_SIZE; i++){
+		if (grid[i][i] != player){
 			won = false;
 		}
 	}
 
-	if(won){
+	if (won){
 		printf("Diagonal principal!\n");
 		winner = player;
 		return;
 	}
 
-	//Verifica diagonal secundÃ¡ria
+	//Verifica diagonal secundária
 	won = true;
-	for(int i = GRID_SIZE - 1, j = 0; i >= 0; i--, j++){
-		if(grid[j][i] != player){
+	for (int i = GRID_SIZE - 1, j = 0; i >= 0; i--, j++){
+		if (grid[j][i] != player){
 			won = false;
 		}
 	}
 
-	if(won){
-		printf("Diagonal secundÃ¡ria!\n");
+	if (won){
+		printf("Diagonal secundária!\n");
 		winner = player;
 		return;
 	}
@@ -461,12 +465,13 @@ void GameLoop(){
 				//TODO
 				CheckIfWon(player);
 
-				if((winner == CIRCLE) || (winner == CROSS) || (ocupados == 9)){
-					if((winner == CIRCLE) || (winner == CROSS)){
+				if ((winner == CIRCLE) || (winner == CROSS) || (ocupados == 9)){
+					if ((winner == CIRCLE) || (winner == CROSS)){
 						printf("Player %c ganhou\n", winner);
 						SDL_Delay(50);
 						Mix_PlayChannel(-1, sfxGameEnded, 0);
-					}else{
+					}
+					else{
 						printf("Empate!\n");
 					}
 					SDL_BlitSurface(imgGrid, NULL, screen, NULL);
@@ -507,7 +512,7 @@ int main(int argc, char *argv[]){
 		return 0;
 	}
 
-	while(!(quit = newGameScreen())){
+	while (!(quit = NewGameScreen())){
 		SetGridRect();
 		NewRound();
 		GameLoop();
