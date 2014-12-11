@@ -1,8 +1,8 @@
 #ifdef _linux_
-	#include <SDL/SDL.h>
-	#include <SDL/SDL_ttf.h>
-	#include <SDL/SDL_image.h>
-	#include <SDL/SDL_mixer.h>
+	#include <SDL2/SDL.h>
+	#include <SDL2/SDL_ttf.h>
+	#include <SDL2/SDL_image.h>
+	#include <SDL2/SDL_mixer.h>
 	#include <cstdio>
 #elif _WIN32
 	#include <SDL.h>
@@ -107,22 +107,38 @@ bool InitWindow(){
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if ((sfxClickX = Mix_LoadWAV("sfx/x_sound.wav")) == NULL){
+=======
+	if((sfxClickX = Mix_LoadWAV("sfx/x_sound.wav")) == NULL){
+>>>>>>> origin/master
 		printf("Unable to load \"x_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if ((sfxClickO = Mix_LoadWAV("sfx/o_sound.wav")) == NULL){
+=======
+	if((sfxClickO = Mix_LoadWAV("sfx/o_sound.wav")) == NULL){
+>>>>>>> origin/master
 		printf("Unable to load \"o_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if ((sfxGameEnded = Mix_LoadWAV("sfx/game_ended.wav")) == NULL){
+=======
+	if((sfxGameEnded = Mix_LoadWAV("sfx/game_ended.wav")) == NULL){
+>>>>>>> origin/master
 		printf("Unable to load \"game_ended.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
 
+<<<<<<< HEAD
 	if ((sfxInvalidClick = Mix_LoadWAV("sfx/invalid_click_sound.wav")) == NULL){
+=======
+	if((sfxInvalidClick = Mix_LoadWAV("sfx/invalid_click_sound.wav")) == NULL){
+>>>>>>> origin/master
 		printf("Unable to load \"invalid_click_sound.wav\"! Mix Error: %s\n", Mix_GetError());
 		return 0;
 	}
@@ -520,7 +536,11 @@ int main(int argc, char *argv[]){
 		return 0;
 	}
 
+<<<<<<< HEAD
 	while (!(quit = NewGameScreen())){
+=======
+	while(!(quit = NewGameScreen())){
+>>>>>>> origin/master
 		SetGridRect();
 		NewRound();
 		GameLoop();
