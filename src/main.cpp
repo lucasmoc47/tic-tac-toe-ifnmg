@@ -93,7 +93,7 @@ bool newGameScreen(){
 		SDL_BlitSurface(newGame, NULL, screen, NULL);
 		SDL_UpdateWindowSurface(window);
 
-		SDL_PollEvent(&event) != 0;
+		SDL_PollEvent(&event);
 
 		if(event.type == SDL_MOUSEBUTTONDOWN){
 			int x, y;
@@ -331,6 +331,38 @@ int ScanMatriz(){
 	return 0;
 }
 
+void gameLoop(){
+	bool quit = false;
+
+	while (!quit){
+		pressedPosition = 0;
+
+		quit = GetEvents();
+		if (CheckPosition()){
+			SDL_BlitSurface(player == 1 ? xImage : oImage, NULL, grid, &gridRect[pressedPosition - 1]);
+			ocupados++;
+			if (ocupados > 4){
+				winner = ScanMatriz();
+				if (winner == 1 || winner == 2 || ocupados == 9){
+					if (ocupados == 9){
+						printf("Empate!\n");
+					}else{
+						printf("Player %d ganhou\n", winner);
+					}
+					SDL_BlitSurface(grid, NULL, screen, NULL);
+					SDL_BlitSurface(player == 1 ? xImage : oImage, NULL, grid, &gridRect[pressedPosition - 1]);
+					SDL_UpdateWindowSurface(window);
+					SDL_Delay(1000);
+					return;
+				}
+			}
+		}
+
+		SDL_BlitSurface(grid, NULL, screen, NULL);
+		SDL_UpdateWindowSurface(window);
+	}
+}
+
 void Close(){
 
 	SDL_DestroyWindow(window);
@@ -346,56 +378,17 @@ void Close(){
 
 int main(int argc, char *argv[]){
 
-	bool quit;
+	bool quit = false;
 
 	if (!InitWindow()){
 		printf("Erro total!\n");
 		return 0;
 	}
 
-	//Chama a tela inicial
-	//Espera o jogador clicar em new game ou quit
-	//Se new game continua caso contrario quit == true
-
-	quit = newGameScreen();
-
-	SetGridRect();
-
-	NewRound();
-
-	while (!quit){
-
-		pressedPosition = 0;
-
-		quit = GetEvents();
-
-		if (CheckPosition()){
-			SDL_BlitSurface(player == 1 ? xImage : oImage, NULL, grid, &gridRect[pressedPosition - 1]);
-			ocupados++;
-			if (ocupados > 4){
-				winner = ScanMatriz();
-				if (winner == 1 || winner == 2 || ocupados == 9){
-					if (ocupados == 9){
-						printf("Empate!\n");
-					}else{
-						printf("Player %d ganhou\n", winner);
-					}
-
-					SDL_BlitSurface(grid, NULL, screen, NULL);
-					SDL_BlitSurface(player == 1 ? xImage : oImage, NULL, grid, &gridRect[pressedPosition - 1]);
-					SDL_UpdateWindowSurface(window);
-
-					SDL_Delay(1000);
-					NewRound();
-				}
-			}
-		}
-
-		SDL_BlitSurface(grid, NULL, screen, NULL);
-
-		SDL_UpdateWindowSurface(window);
-
-		SDL_Delay(10);
+	while(!(quit = newGameScreen())){
+		SetGridRect();
+		NewRound();
+		gameLoop();
 	}
 
 	return 0;
