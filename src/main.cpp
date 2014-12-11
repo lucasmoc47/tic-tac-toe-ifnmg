@@ -13,12 +13,15 @@ const int BAR_SIZE = 4;
 const int COMP = 4;
 
 #define GRID_SIZE 3
+#define CIRCLE 'O'
+#define CROSS 'X'
+#define NULLCHAR '\0'
 
 int pressedPosition;
 int posX, posY; //Posições da matriz que representa o grid
-int gridMat[GRID_SIZE][GRID_SIZE];
-int player;
-int winner;
+char grid[GRID_SIZE][GRID_SIZE];
+char player;
+char winner;
 int ocupados;
 
 //Imagens
@@ -262,9 +265,9 @@ bool GetEvents(int player){
 
 			if(GetPosition(x, y)){
 
-				if(player == 1){
+				if(player == CIRCLE){
 					Mix_PlayChannel(-1, sfxClickO, 0);
-				}else if(player == 2){
+				}else if(player == CROSS){
 					Mix_PlayChannel(-1, sfxClickX, 0);
 				}
 			}else{
@@ -288,7 +291,7 @@ void NewRound(){
 
 	for (int i = 0; i < GRID_SIZE; i++){
 		for (int j = 0; j < GRID_SIZE; j++){
-			gridMat[i][j] = -1;
+			grid[i][j] = NULLCHAR;
 		}
 	}
 
@@ -298,18 +301,18 @@ void NewRound(){
 		printf("Unable to load \"grid.png\"! SDL Error: %s\n", SDL_GetError());
 	}
 
-	winner = 0;
+	winner = NULLCHAR;
 	ocupados = 0;
-	player = 1;
+	player = CIRCLE;
 
 }
 
 bool CheckPosition(){
 
 	if (pressedPosition != 0){
-		if (gridMat[posX][posY] == -1){
-			gridMat[posX][posY] = player;
-			player == 1 ? player = 2 : player = 1;
+		if (grid[posX][posY] == NULLCHAR){
+			grid[posX][posY] = player;
+			player == CROSS ? player = CIRCLE : player = CROSS;
 			return true;
 		}
 	}
@@ -317,8 +320,8 @@ bool CheckPosition(){
 	return false;
 }
 
-int ScanMatriz(){
-
+void CheckIfWon(char player){
+/*
 	int horizontal = 0, vertical = 0;
 	int diagonal_1 = 0, diagonal_2 = 0;
 
@@ -327,21 +330,21 @@ int ScanMatriz(){
 	//Verifica as linhas e diagonais
 	for (int i = 0; i < GRID_SIZE; i++){
 		for (int j = 0; j < GRID_SIZE; j++){
-			if (horizontal != 0 && horizontal != gridMat[i][j]){
+			if (horizontal != 0 && horizontal != grid[i][j]){
 				changedH = true;
 			}
-			horizontal = gridMat[i][j];
+			horizontal = grid[i][j];
 			if (i == j){
-				if (diagonal_1 != 0 && diagonal_1 != gridMat[i][j]){
+				if (diagonal_1 != 0 && diagonal_1 != grid[i][j]){
 					changedD1 = true;
 				}
-				diagonal_1 = gridMat[i][j];
+				diagonal_1 = grid[i][j];
 			}
 			if ((i + j) == 2){
-				if (diagonal_2 != 0 && diagonal_2 != gridMat[i][j]){
+				if (diagonal_2 != 0 && diagonal_2 != grid[i][j]){
 					changedD2 = true;
 				}
-				diagonal_2 = gridMat[i][j];
+				diagonal_2 = grid[i][j];
 			}
 		}
 
@@ -362,10 +365,10 @@ int ScanMatriz(){
 	//Verifica as colunas
 	for (int i = 0; i < GRID_SIZE; i++){
 		for (int j = 0; j < GRID_SIZE; j++){
-			if (vertical != 0 && vertical != gridMat[j][i]){
+			if (vertical != 0 && vertical != grid[j][i]){
 				changedV = true;
 			}
-			vertical = gridMat[j][i];
+			vertical = grid[j][i];
 		}
 
 		if (!changedV){
@@ -376,6 +379,72 @@ int ScanMatriz(){
 	}
 
 	return 0;
+*/
+
+	bool won;
+	player == CROSS ? player = CIRCLE : player = CROSS;
+
+	//Verifica linhas
+	for(int i = 0; i < GRID_SIZE; i++){
+		won = true;
+		for(int j = 0; j < GRID_SIZE; j++){
+			if(grid[i][j] != player){
+				won = false;
+			}
+		}
+
+		if(won){
+			printf("Linhas!\n");
+			winner = player;
+			return;
+		}
+	}
+
+	//Verifica colunas
+	for(int i = 0; i < GRID_SIZE; i++){
+		won = true;
+
+		for(int j = 0; j < GRID_SIZE; j++){
+			if(grid[j][i] != player){
+				won = false;
+			}
+		}
+
+		if(won){
+			printf("Colunas!\n");
+			winner = player;
+			return;
+		}
+	}
+
+	//Verifica diagonal principal
+	won = true;
+	for(int i = 0; i < GRID_SIZE; i++){
+		if(grid[i][i] != player){
+			won = false;
+		}
+	}
+
+	if(won){
+		printf("Diagonal principal!\n");
+		winner = player;
+		return;
+	}
+
+	//Verifica diagonal secundária
+	won = true;
+	for(int i = GRID_SIZE - 1, j = 0; i >= 0; i--, j++){
+		if(grid[j][i] != player){
+			won = false;
+		}
+	}
+
+	if(won){
+		printf("Diagonal secundária!\n");
+		winner = player;
+		return;
+	}
+
 }
 
 void GameLoop(){
@@ -386,20 +455,22 @@ void GameLoop(){
 
 		quit = GetEvents(player);
 		if (CheckPosition()){
-			SDL_BlitSurface(player == 1 ? imgX : imgO, NULL, imgGrid, &gridRect[pressedPosition - 1]);
+			SDL_BlitSurface(player == CIRCLE ? imgX : imgO, NULL, imgGrid, &gridRect[pressedPosition - 1]);
 			ocupados++;
 			if (ocupados > 4){
-				winner = ScanMatriz();
-				if (winner == 1 || winner == 2 || ocupados == 9){
-					if((winner == 1) || (winner == 2)){
-						printf("Player %d ganhou\n", winner);
+				//TODO
+				CheckIfWon(player);
+
+				if((winner == CIRCLE) || (winner == CROSS) || (ocupados == 9)){
+					if((winner == CIRCLE) || (winner == CROSS)){
+						printf("Player %c ganhou\n", winner);
 						SDL_Delay(50);
 						Mix_PlayChannel(-1, sfxGameEnded, 0);
 					}else{
 						printf("Empate!\n");
 					}
 					SDL_BlitSurface(imgGrid, NULL, screen, NULL);
-					SDL_BlitSurface(player == 1 ? imgX : imgO, NULL, imgGrid, &gridRect[pressedPosition - 1]);
+					SDL_BlitSurface(player == CIRCLE ? imgX : imgO, NULL, imgGrid, &gridRect[pressedPosition - 1]);
 					SDL_UpdateWindowSurface(window);
 					SDL_Delay(2000);
 					return;
