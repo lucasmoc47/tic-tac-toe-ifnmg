@@ -1,8 +1,18 @@
+#ifdef linux
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <cstdio>
+#endif
+
+#ifdef _WIN32
+#include <SDL.h>
+#include <SSDL_ttf.h>
+#include <SDL_image.h>
+#include <SDL_mixer.h>
+#include <cstdio>
+#endif
 
 const int SCREEN_WIDTH = 311;
 const int SCREEN_HEIGHT = 308;
